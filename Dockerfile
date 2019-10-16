@@ -20,4 +20,4 @@ RUN go get github.com/tommyblue/smugmug-backup
 VOLUME /backup
 
 # Start Radsecproxy
-CMD ["sh", "-c", "/root/go/bin/smugmug-backup -user $USERNAME -destination /backup"]
+CMD ["sh", "-c", "/root/go/bin/smugmug-backup -user $USER_NAME -destination /backup"]
