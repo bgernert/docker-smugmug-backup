@@ -1,0 +1,60 @@
+From a7169ca346674a002db50b054224ea7814a3f979 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Gernert?= <mail@bjoern-gernert.de>
+Date: Sat, 7 Dec 2019 15:49:52 +0100
+Subject: [PATCH] Ignore albums which contain the keyword 'smart_gallery'
+
+---
+ json_structs.go | 1 +
+ main.go         | 8 ++++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/json_structs.go b/json_structs.go
+index ea86478..a94be56 100644
+--- a/json_structs.go
++++ b/json_structs.go
+@@ -24,6 +24,7 @@ type albumsResponse struct {
+ 
+ type album struct {
+ 	URLPath string `json:"UrlPath"`
++	Keywords string `json:"Keywords"`
+ 	Uris    struct {
+ 		AlbumImages struct {
+ 			URI string `json:"Uri"`
+diff --git a/main.go b/main.go
+index 6d289a2..c322934 100644
+--- a/main.go
++++ b/main.go
+@@ -5,6 +5,7 @@ import (
+ 	"fmt"
+ 	"log"
+ 	"os"
++	"strings"
+ )
+ 
+ type smugMugConf struct {
+@@ -32,8 +33,13 @@ func main() {
+ 	// - iterate over all images
+ 	//    - if existing, skip
+ 	//    - if not, download
++	var i int = 0
+ 	for _, a := range *albums {
+ 		folder := fmt.Sprintf("%s%s", conf.destination, a.URLPath)
++		if strings.Contains(a.Keywords, "smart_gallery") {
++			i++
++			continue
++		}
+ 		createFolder(folder)
+ 		images, err := conf.getAlbumImages(a.Uris.AlbumImages.URI)
+ 		if err != nil {
+@@ -41,6 +47,8 @@ func main() {
+ 		}
+ 		conf.saveImages(images, folder)
+ 	}
++
++	fmt.Printf("Ignored %d smart galleries\n", i)
+ }
+ 
+ func (c *smugMugConf) checkDestination() {
+-- 
+2.17.1
+

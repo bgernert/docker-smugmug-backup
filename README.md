@@ -3,7 +3,12 @@
 ## Goal of this image
 
 This image provides the smugmug backup tool in a Docker container.
+
 Credit goes to: Tommaso Visconti <https://github.com/tommyblue/smugmug-backup>
+
+##### Skipping smart galleries
+
+In addition to the original backup tool, you can skip the download of smart galleries by adding the keyword `smart_gallery` to the smart gallery.
 
 ## How to use the image
 
