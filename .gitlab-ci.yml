@@ -1,0 +1,46 @@
+image: docker:latest
+services:
+  - docker:dind
+
+stages:
+  - build
+  - release
+
+variables:
+  CI_REGISTRY_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+
+build:
+  stage: build
+
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+  script:
+    - docker build --pull -t $CI_REGISTRY_TEST_IMAGE .
+    - docker push $CI_REGISTRY_TEST_IMAGE
+
+  after_script:
+    - docker logout $CI_REGISTRY
+
+
+release-image:
+  stage: release
+
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u "$DOCKERHUB_REGISTRY_USER" -p "$DOCKERHUB_REGISTRY_PASSWORD" $DOCKERHUB_REGISTRY
+
+  script:
+    - docker pull $CI_REGISTRY_TEST_IMAGE
+    - docker tag $CI_REGISTRY_TEST_IMAGE "$CI_REGISTRY_IMAGE:latest"
+    - docker tag $CI_REGISTRY_TEST_IMAGE "$DOCKERHUB_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$DOCKERHUB_REGISTRY_IMAGE:latest"
+
+  after_script:
+    - docker logout $CI_REGISTRY
+    - docker logout $DOCKERHUB_REGISTRY
+
+  only:
+    - master
