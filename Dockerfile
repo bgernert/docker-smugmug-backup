@@ -11,22 +11,22 @@ WORKDIR /root
 RUN apk update
 
 # Install buildtools
-RUN apk add --no-cache git g++ go
+RUN apk add --no-cache git g++ go make
 
 # Get Smugmug backup tool
-RUN go get github.com/tommyblue/smugmug-backup
+RUN git clone https://github.com/tommyblue/smugmug-backup.git
 
 # Apply the 'smart_gallery' patch
-COPY smart_gallery.patch /root/go/src/github.com/tommyblue/smugmug-backup/
-RUN cd /root/go/src/github.com/tommyblue/smugmug-backup/ && \
-    git config --global user.email "mail@bjoern-gernert.de" && \
-    git config --global user.name "Björn Gernert" && \
+COPY smart_gallery.patch /root/smugmug-backup/
+RUN cd /root/smugmug-backup/ && \
+    git config --global user.email "mail@example.com" && \
+    git config --global user.name "Max Mustermann" && \
     git am < smart_gallery.patch && \
-    go build && \
-    mv smugmug-backup /root/go/bin/smugmug-backup
+    make build && \
+    mv smugmug-backup /usr/bin/smugmug-backup
 
 # Export volumes
 VOLUME /backup
 
 # Start Radsecproxy
-CMD ["sh", "-c", "/root/go/bin/smugmug-backup -user $USER_NAME -destination /backup"]
+CMD ["sh", "-c", "/usr/bin/smugmug-backup -user $USER_NAME -destination /backup"]

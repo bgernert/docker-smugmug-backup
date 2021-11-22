@@ -1,18 +1,18 @@
-From a7169ca346674a002db50b054224ea7814a3f979 Mon Sep 17 00:00:00 2001
+From b1acb415e8aa417bb54480e6df03f16bc32436ba Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Bj=C3=B6rn=20Gernert?= <mail@bjoern-gernert.de>
-Date: Sat, 7 Dec 2019 15:49:52 +0100
+Date: Mon, 22 Nov 2021 20:19:36 +0100
 Subject: [PATCH] Ignore albums which contain the keyword 'smart_gallery'
 
 ---
  json_structs.go | 1 +
- main.go         | 8 ++++++++
+ smugmug.go      | 8 ++++++++
  2 files changed, 9 insertions(+)
 
 diff --git a/json_structs.go b/json_structs.go
-index ea86478..a94be56 100644
+index ae320e8..0228030 100644
 --- a/json_structs.go
 +++ b/json_structs.go
-@@ -24,6 +24,7 @@ type albumsResponse struct {
+@@ -39,6 +39,7 @@ type albumsResponse struct {
  
  type album struct {
  	URLPath string `json:"UrlPath"`
@@ -20,41 +20,46 @@ index ea86478..a94be56 100644
  	Uris    struct {
  		AlbumImages struct {
  			URI string `json:"Uri"`
-diff --git a/main.go b/main.go
-index 6d289a2..c322934 100644
---- a/main.go
-+++ b/main.go
-@@ -5,6 +5,7 @@ import (
- 	"fmt"
- 	"log"
+diff --git a/smugmug.go b/smugmug.go
+index 8b03d1a..6e77bd8 100644
+--- a/smugmug.go
++++ b/smugmug.go
+@@ -6,6 +6,7 @@ import (
+ 	"html/template"
  	"os"
+ 	"path/filepath"
 +	"strings"
- )
  
- type smugMugConf struct {
-@@ -32,8 +33,13 @@ func main() {
- 	// - iterate over all images
- 	//    - if existing, skip
- 	//    - if not, download
+ 	log "github.com/sirupsen/logrus"
+ 	"github.com/spf13/viper"
+@@ -181,6 +182,7 @@ func buildFilenameTemplate(filenameTemplate string) (*template.Template, error)
+ //       - if not, download
+ func (w *Worker) Run() error {
+ 	var err error
 +	var i int = 0
- 	for _, a := range *albums {
- 		folder := fmt.Sprintf("%s%s", conf.destination, a.URLPath)
-+		if strings.Contains(a.Keywords, "smart_gallery") {
+ 	w.cfg.username, err = w.currentUser()
+ 	if err != nil {
+ 		return fmt.Errorf("Error checking credentials: %v", err)
+@@ -197,6 +199,10 @@ func (w *Worker) Run() error {
+ 
+ 	for _, album := range albums {
+ 		folder := filepath.Join(w.cfg.Destination, album.URLPath)
++		if strings.Contains(album.Keywords, "smart_gallery") {
 +			i++
 +			continue
 +		}
- 		createFolder(folder)
- 		images, err := conf.getAlbumImages(a.Uris.AlbumImages.URI)
- 		if err != nil {
-@@ -41,6 +47,8 @@ func main() {
- 		}
- 		conf.saveImages(images, folder)
- 	}
-+
-+	fmt.Printf("Ignored %d smart galleries\n", i)
- }
  
- func (c *smugMugConf) checkDestination() {
+ 		if err := createFolder(folder); err != nil {
+ 			log.WithError(err).Errorf("cannot create the destination folder %s", folder)
+@@ -217,6 +223,8 @@ func (w *Worker) Run() error {
+ 		w.saveImages(images, folder)
+ 	}
+ 
++	fmt.Printf("Ignored %d smart galleries\n", i)
++
+ 	if w.errors > 0 {
+ 		return fmt.Errorf("Completed with %d errors, please check logs", w.errors)
+ 	}
 -- 
-2.17.1
+2.25.1
 
