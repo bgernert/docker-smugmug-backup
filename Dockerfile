@@ -25,6 +25,10 @@ RUN cd /root/smugmug-backup/ && \
     make build && \
     mv smugmug-backup /usr/bin/smugmug-backup
 
+# Copy config file
+RUN mkdir /root/.smgmg/
+COPY config.toml /root/.smgmg/
+
 # Export volumes
 VOLUME /backup
 

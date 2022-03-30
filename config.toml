@@ -1,0 +1,11 @@
+[authentication]
+api_key = ""
+api_secret = ""
+user_token = ""
+user_secret = ""
+
+[store]
+destination = "/backup"
+file_names = ""
+use_metadata_times = true
+force_metadata_times = true
