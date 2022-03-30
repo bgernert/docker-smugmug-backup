@@ -28,5 +28,5 @@ RUN cd /root/smugmug-backup/ && \
 # Export volumes
 VOLUME /backup
 
-# Start Radsecproxy
-CMD ["sh", "-c", "/usr/bin/smugmug-backup -user $USER_NAME -destination /backup"]
+# Start Smugmug backup
+CMD ["sh", "-c", "/usr/bin/smugmug-backup"]

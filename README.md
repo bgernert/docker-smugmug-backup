@@ -15,11 +15,12 @@ In addition to the original backup tool, you can skip the download of smart gall
 ```
 docker build -t docker-smugmug-backup .
 docker run -d \
-  -e "API_KEY=<key>" \
-  -e "API_SECRET=<secret>" \
-  -e "USER_TOKEN=<token>" \
-  -e "USER_SECRET=<secret>" \
-  -e "USER_NAME=<smugmug-username>" \
+  -e "SMGMG_BK_API_KEY=<API Key>" \
+  -e "SMGMG_BK_API_SECRET=<API Secret>" \
+  -e "SMGMG_BK_USER_TOKEN=<User Token>" \
+  -e "SMGMG_BK_USER_SECRET=<User Secret>" \
+  -e "SMGMG_BK_DESTINATION=/backup" \
+  -e "SMGMG_BK_FILE_NAMES=<Filename with template replacements>" \
   -v /backup:/path/on/host \
   docker-smugmug-backup
 ```
